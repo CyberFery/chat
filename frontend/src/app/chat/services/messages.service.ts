@@ -8,7 +8,7 @@ export class MessagesService {
   messages = signal<Message[]>([]);
 
   postMessage(message: Message): void {
-    // À faire
+    this.messages.update((messages) => [...messages, message]);
   }
 
   getMessages(): Signal<Message[]> {

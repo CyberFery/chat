@@ -18,7 +18,7 @@ export class AuthenticationService {
   }
 
   logout() {
-    // À faire
+    localStorage.removeItem(AuthenticationService.KEY);
   }
 
   getUsername(): Signal<string | null> {
