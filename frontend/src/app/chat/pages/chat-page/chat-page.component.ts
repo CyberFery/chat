@@ -23,7 +23,7 @@ export class ChatPageComponent {
   ) {}
 
   publishMessage(newMessage: string) {
-    if (!this.username()) return;
+    //if (!this.username()) return;
 
     this.messagesService.postMessage({
       text: newMessage,
