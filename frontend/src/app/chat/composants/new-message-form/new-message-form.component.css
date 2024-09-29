@@ -2,6 +2,9 @@ form {
   display: flex;
 }
 
-input[type='text'] {
+mat-form-field {
   flex: 1;
+  input {
+    width: 100%;
+  }
 }

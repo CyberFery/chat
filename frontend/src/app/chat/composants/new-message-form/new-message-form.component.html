@@ -1,4 +1,8 @@
 <form (ngSubmit)="onPublishMessage()" [formGroup]="messageForm">
-  <input name="message" type="text" formControlName="msg" />
-  <button type="submit">></button>
+  <mat-form-field subscriptSizing="dynamic">
+    <input matInput name="message" type="text" formControlName="msg" />
+    <button mat-icon-button matSuffix type="submit">
+      <mat-icon aria-label="Send message" fontIcon="send"> </mat-icon>
+    </button>
+  </mat-form-field>
 </form>

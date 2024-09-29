@@ -4,13 +4,14 @@ import { MessagesService } from '../../services/messages.service';
 import { Router } from '@angular/router';
 import { MessagesComponent } from '../../composants/messages/messages.component';
 import { NewMessageFormComponent } from '../../composants/new-message-form/new-message-form.component';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-chat-page',
   templateUrl: './chat-page.component.html',
   styleUrls: ['./chat-page.component.css'],
   standalone: true,
-  imports: [MessagesComponent, NewMessageFormComponent],
+  imports: [MessagesComponent, NewMessageFormComponent, MatButtonModule],
 })
 export class ChatPageComponent {
   messages = this.messagesService.getMessages();
@@ -23,7 +24,7 @@ export class ChatPageComponent {
   ) {}
 
   publishMessage(newMessage: string) {
-    //if (!this.username()) return;
+    if (!this.username()) return;
 
     this.messagesService.postMessage({
       text: newMessage,
