@@ -16,9 +16,9 @@ export class LoginPageComponent {
   constructor(private authService: AuthenticationService, private router: Router) {}
 
   onLogin(userCredentials: UserCredentials) {
-    this.authService.login(userCredentials.username).subscribe(() => {
-      this.router.navigate(['/chat']);
-    });
+  this.authService.login(userCredentials).subscribe(() => {
+    this.router.navigate(['/chat']);
+   });
   }
 }
 
