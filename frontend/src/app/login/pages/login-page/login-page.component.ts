@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { LoginFormComponent } from '../../components/login-form/login-form.component';
 import { UserCredentials } from '../../model/user-credentials';
+import { AuthenticationService } from '../../services/authentication.service';
 
 @Component({
   selector: 'app-login-page',
@@ -10,7 +12,13 @@ import { UserCredentials } from '../../model/user-credentials';
   imports: [LoginFormComponent],
 })
 export class LoginPageComponent {
+
+  constructor(private authService: AuthenticationService, private router: Router) {}
+
   onLogin(userCredentials: UserCredentials) {
-    // À faire
+    this.authService.login(userCredentials.username).subscribe(() => {
+      this.router.navigate(['/chat']);
+    });
   }
 }
+

@@ -1,4 +1,4 @@
-import { Component, output } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { UserCredentials } from '../../model/user-credentials';
 
@@ -15,11 +15,16 @@ export class LoginFormComponent {
     password: '',
   });
 
-  login = output<UserCredentials>();
+  @Output() login = new EventEmitter<UserCredentials>();
 
   constructor(private fb: FormBuilder) {}
 
   onLogin() {
-    // À faire
+    const credentials: UserCredentials = {
+      username: this.loginForm.value.username,
+      password: this.loginForm.value.password
+    };
+    this.login.emit(credentials);
   }
 }
+
