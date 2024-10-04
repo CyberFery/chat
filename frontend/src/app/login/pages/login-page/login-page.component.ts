@@ -12,13 +12,13 @@ import { AuthenticationService } from '../../services/authentication.service';
   imports: [LoginFormComponent],
 })
 export class LoginPageComponent {
+  constructor(
+    private authService: AuthenticationService,
+    private router: Router,
+  ) {}
 
-  constructor(private authService: AuthenticationService, private router: Router) {}
-
-  onLogin(userCredentials: UserCredentials) {
-  this.authService.login(userCredentials).subscribe(() => {
+  onLogin(credentials: UserCredentials) {
+    this.authService.login(credentials);
     this.router.navigate(['/chat']);
-   });
   }
 }
-

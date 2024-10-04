@@ -15,10 +15,10 @@ export class AuthenticationService {
   }
 
   login(userCredentials: UserCredentials): Observable<void> {
-  localStorage.setItem(AuthenticationService.KEY, userCredentials.username);
-  this.username.set(userCredentials.username);
-  return of();
-}
+    localStorage.setItem(AuthenticationService.KEY, userCredentials.username);
+    this.username.set(userCredentials.username);
+    return of();
+  }
 
   logout() {
     localStorage.removeItem(AuthenticationService.KEY);
@@ -29,4 +29,3 @@ export class AuthenticationService {
     return this.username;
   }
 }
-
