@@ -23,9 +23,13 @@ export class ChatPageComponent {
     private Router: Router
   ) {}
 
-  publishMessage(newMessage: string) {
-    if (!this.username()) return;
+  ngOnInit() {
+    if (!this.username()) {
+      this.Router.navigate(['/login']);
+    }
+  }
 
+  publishMessage(newMessage: string) {
     this.messagesService.postMessage({
       text: newMessage,
       username: this.username()!,
