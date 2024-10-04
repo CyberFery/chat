@@ -1,0 +1,8 @@
+.login-card {
+    max-width: 400px;
+    margin: 50px auto;
+}
+
+mat-card-title {
+    text-align: center;
+}
