@@ -30,7 +30,19 @@ public class AuthController {
     @PostMapping(AUTH_LOGIN_PATH)
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         // À faire...
-        return null;
+        SessionData sessionData = new SessionData(loginRequest.username());
+
+        String sessionId = sessionManager.addSession(sessionData);
+        ResponseCookie cookie = ResponseCookie.from(SESSION_ID_COOKIE_NAME, sessionId)
+                .secure(true)
+                .httpOnly(true)
+                .path("/")
+                .maxAge(60 * 60 * 24)
+                .build();
+
+        return ResponseEntity.ok()
+                .header("Set-Cookie", cookie.toString())
+                .body(new LoginResponse(sessionData.username()));
     }
 
     @PostMapping(AUTH_LOGOUT_PATH)
