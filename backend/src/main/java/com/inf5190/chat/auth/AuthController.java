@@ -29,7 +29,6 @@ public class AuthController {
 
     @PostMapping(AUTH_LOGIN_PATH)
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
-        // À faire...
         SessionData sessionData = new SessionData(loginRequest.username());
 
         String sessionId = sessionManager.addSession(sessionData);
@@ -47,7 +46,6 @@ public class AuthController {
 
     @PostMapping(AUTH_LOGOUT_PATH)
     public ResponseEntity<Void> logout(@CookieValue(SESSION_ID_COOKIE_NAME) Cookie sessionCookie) {
-        // À faire...
         sessionManager.removeSession(sessionCookie.getValue());
 
         ResponseCookie cookie = ResponseCookie.from(SESSION_ID_COOKIE_NAME, "")
