@@ -1,6 +1,9 @@
 import { Injectable, Signal, signal } from '@angular/core';
 import { UserCredentials } from '../model/user-credentials';
-import { of, Observable } from 'rxjs';
+import { of, Observable, firstValueFrom } from 'rxjs';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+import { LoginResponse } from '../model/login-response';
 
 @Injectable({
   providedIn: 'root',
@@ -10,19 +13,45 @@ export class AuthenticationService {
 
   private username = signal<string | null>(null);
 
-  constructor() {
+  private httpClient: HttpClient;
+
+  constructor(httpClient: HttpClient) {
+    this.httpClient = httpClient;
+
     this.username.set(localStorage.getItem(AuthenticationService.KEY));
   }
 
-  login(userCredentials: UserCredentials): Observable<void> {
-    localStorage.setItem(AuthenticationService.KEY, userCredentials.username);
-    this.username.set(userCredentials.username);
+  async login(userCredentials: UserCredentials): Promise<Observable<void>> {
+    let response: LoginResponse = await firstValueFrom(
+      this.httpClient.post<LoginResponse>(
+        `${environment.backendUrl}/auth/login`,
+        userCredentials,
+        { withCredentials: true }
+      )
+    );
+
+    localStorage.setItem(AuthenticationService.KEY, response.username);
+    this.username.set(response.username);
+
     return of();
   }
 
-  logout() {
-    localStorage.removeItem(AuthenticationService.KEY);
-    this.username.set(null);
+  async logout() {
+    let currUsername = localStorage.getItem(AuthenticationService.KEY);
+
+    let response: HttpResponse<any> = await firstValueFrom(
+      this.httpClient.post<any>(`${environment.backendUrl}/auth/logout`, {
+        withCredentials: true,
+        observe: 'response',
+      })
+    );
+
+    if (response.status === 200) {
+      localStorage.removeItem(AuthenticationService.KEY);
+      this.username.set(null);
+    } else {
+      throw new Error('Failed to logout');
+    }
   }
 
   getUsername(): Signal<string | null> {

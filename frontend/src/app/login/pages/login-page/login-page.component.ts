@@ -15,11 +15,12 @@ import { MatCardModule } from '@angular/material/card';
 export class LoginPageComponent {
   constructor(
     private authService: AuthenticationService,
-    private router: Router,
+    private router: Router
   ) {}
 
-  onLogin(credentials: UserCredentials) {
-    this.authService.login(credentials);
+  async onLogin(credentials: UserCredentials) {
+    await this.authService.login(credentials);
+
     this.router.navigate(['/chat']);
   }
 }

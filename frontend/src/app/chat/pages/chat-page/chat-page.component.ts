@@ -37,8 +37,8 @@ export class ChatPageComponent {
     });
   }
 
-  onLogout() {
-    this.authenticationService.logout();
+  async onLogout() {
+    await this.authenticationService.logout();
     this.Router.navigate(['/login']);
   }
 }
