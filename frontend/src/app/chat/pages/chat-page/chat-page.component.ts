@@ -1,7 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { AuthenticationService } from 'src/app/login/services/authentication.service';
 import { MessagesService } from '../../services/messages.service';
+import {
+  WebSocketService,
+  WebSocketEvent,
+} from '../../services/websocket.service';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { MessagesComponent } from '../../composants/messages/messages.component';
 import { NewMessageFormComponent } from '../../composants/new-message-form/new-message-form.component';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,32 +18,58 @@ import { MatButtonModule } from '@angular/material/button';
   standalone: true,
   imports: [MessagesComponent, NewMessageFormComponent, MatButtonModule],
 })
-export class ChatPageComponent {
+export class ChatPageComponent implements OnDestroy {
   messages = this.messagesService.getMessages();
   username = this.authenticationService.getUsername();
+  private wsSubscription: Subscription | null = null;
 
   constructor(
     private messagesService: MessagesService,
     private authenticationService: AuthenticationService,
-    private Router: Router
+    private router: Router,
+    private webSocketService: WebSocketService,
   ) {}
 
   ngOnInit() {
     if (!this.username()) {
-      this.Router.navigate(['/login']);
+      this.router.navigate(['/login']);
+    } else {
+      this.messagesService.fetchMessages();
+      this.connectWebSocket();
     }
   }
 
-  publishMessage(newMessage: string) {
-    this.messagesService.postMessage({
-      text: newMessage,
+  ngOnDestroy() {
+    this.disconnectWebSocket();
+  }
+
+  publishMessage(newMessageText: string) {
+    const newMessage = {
+      text: newMessageText,
       username: this.username()!,
-      timestamp: Date.now(),
+    };
+    this.messagesService.postMessage(newMessage);
+  }
+
+  onLogout() {
+    this.authenticationService.logout();
+    this.router.navigate(['/login']);
+  }
+
+  private connectWebSocket() {
+    this.wsSubscription = this.webSocketService.connect().subscribe({
+      next: (event: WebSocketEvent) => {
+        if (event === 'notif') {
+          this.messagesService.fetchMessages();
+        }
+      },
+      error: (err) => console.error('WebSocket error:', err),
+      complete: () => console.log('WebSocket connection closed'),
     });
   }
 
-  async onLogout() {
-    await this.authenticationService.logout();
-    this.Router.navigate(['/login']);
+  private disconnectWebSocket() {
+    this.wsSubscription?.unsubscribe();
+    this.webSocketService.disconnect();
   }
 }
