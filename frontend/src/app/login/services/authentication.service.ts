@@ -53,12 +53,14 @@ export class AuthenticationService {
         localStorage.removeItem(AuthenticationService.KEY);
         this.username.set(null);
         console.log('Logged out.');
+
         return true;
       } else {
         return false;
       }
     } catch (error) {
       console.error('Failed to logout:', error);
+
       return false;
     }
   }
