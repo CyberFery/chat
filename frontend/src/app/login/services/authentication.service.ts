@@ -36,21 +36,30 @@ export class AuthenticationService {
     return of();
   }
 
-  async logout() {
-    let currUsername = localStorage.getItem(AuthenticationService.KEY);
+  async logout(): Promise<boolean> {
+    try {
+      let response: HttpResponse<void> = await firstValueFrom(
+        this.httpClient.post<void>(
+          `${environment.backendUrl}/auth/logout`,
+          {},
+          {
+            observe: 'response',
+            withCredentials: true,
+          }
+        )
+      );
 
-    let response: HttpResponse<any> = await firstValueFrom(
-      this.httpClient.post<any>(`${environment.backendUrl}/auth/logout`, {
-        withCredentials: true,
-        observe: 'response',
-      })
-    );
-
-    if (response.status === 200) {
-      localStorage.removeItem(AuthenticationService.KEY);
-      this.username.set(null);
-    } else {
-      throw new Error('Failed to logout');
+      if (response.status === 200) {
+        localStorage.removeItem(AuthenticationService.KEY);
+        this.username.set(null);
+        console.log('Logged out.');
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      console.error('Failed to logout:', error);
+      return false;
     }
   }
 
