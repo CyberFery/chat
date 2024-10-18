@@ -1,6 +1,7 @@
 import { Injectable, Signal, signal } from '@angular/core';
 import { Message } from '../model/message.model';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -23,19 +24,31 @@ export class MessagesService {
       params = params.set('fromId', fromId.toString());
     }
 
-    this.http.get<Message[]>('/messages', { params }).subscribe((data) => {
-      if (fromId !== undefined) {
-        this.messages.update((messages) => [...messages, ...data]);
-      } else {
-        this.messages.set(data);
-      }
-    });
+    this.http
+      .get<Message[]>(`${environment.backendUrl}/messages`, {
+        params,
+        withCredentials: true,
+      })
+      .subscribe({
+        next: (data) => {
+          if (fromId !== undefined) {
+            this.messages.update((messages) => [...messages, ...data]);
+          } else {
+            this.messages.set(data);
+          }
+        },
+        error: (error) => {
+          console.error('Error fetching messages:', error);
+        },
+      });
   }
 
   postMessage(message: Omit<Message, 'id' | 'timestamp'>): void {
-    this.http.post<Message>('/messages', message).subscribe((newMessage) => {
-      this.messages.update((messages) => [...messages, newMessage]);
-    });
+    this.http
+      .post<Message>(`${environment.backendUrl}/messages`, message, {
+        withCredentials: true,
+      })
+      .subscribe();
   }
 
   getMessages(): Signal<Message[]> {
