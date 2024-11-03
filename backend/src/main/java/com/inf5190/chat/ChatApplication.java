@@ -1,6 +1,14 @@
 package com.inf5190.chat;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Arrays;
+
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -22,10 +30,28 @@ public class ChatApplication {
     @Value("${cors.allowedOrigins}")
     private String allowedOriginsConfig;
 
-    public static void main(String[] args) {
-        SpringApplication.run(ChatApplication.class, args);
-    }
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChatApplication.class);
 
+    public static void main(String[] args) {
+        try {
+            if (FirebaseApp.getApps().size() == 0) {
+                FileInputStream serviceAccount = new
+                        FileInputStream("firebase-key.json");
+
+                FirebaseOptions options = FirebaseOptions.builder()
+                        .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                        .build();
+
+                LOGGER.info("Initializing Firebase application.");
+                FirebaseApp.initializeApp(options);
+            }
+
+            LOGGER.info("Firebase application already initialized.");
+            SpringApplication.run(ChatApplication.class, args);
+        } catch (IOException e) {
+            System.err.println("Could not initialise application. Please check you service account key path");
+        }
+    }
 
 
     /**

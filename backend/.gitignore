@@ -34,3 +34,6 @@ build/
 
 .DS_Store
 .gradle
+
+### Firebase ###
+firebase-key.json
