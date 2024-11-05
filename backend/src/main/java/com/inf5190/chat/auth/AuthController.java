@@ -1,5 +1,7 @@
 package com.inf5190.chat.auth;
 
+import com.inf5190.chat.auth.repository.FirestoreUserAccount;
+import com.inf5190.chat.auth.repository.UserAccountRepository;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -22,26 +24,51 @@ public class AuthController {
     public static final String SESSION_ID_COOKIE_NAME = "sid";
 
     private final SessionManager sessionManager;
+    private final UserAccountRepository userAccountRepository;
 
-    public AuthController(SessionManager sessionManager) {
+    public AuthController(SessionManager sessionManager, UserAccountRepository userAccountRepository) {
         this.sessionManager = sessionManager;
+        this.userAccountRepository = userAccountRepository;
     }
 
     @PostMapping(AUTH_LOGIN_PATH)
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
-        SessionData sessionData = new SessionData(loginRequest.username());
+        FirestoreUserAccount userAccount = getUserAccountIfExists(loginRequest.username());
 
-        String sessionId = sessionManager.addSession(sessionData);
-        ResponseCookie cookie = ResponseCookie.from(SESSION_ID_COOKIE_NAME, sessionId)
-                .secure(true)
-                .httpOnly(true)
-                .path("/")
-                .maxAge(60 * 60 * 24)
-                .build();
+        if(userAccount == null) {
+            // Ceci est temporel. Les exceptions seront gérées plus tard lors du TP 4.
+            if(
+                !createUserAccount(loginRequest.username(), loginRequest.password())
+            ) {
+                return ResponseEntity.badRequest().body(
+                        new LoginResponse("Could not create user account.")
+                );
+            }
 
-        return ResponseEntity.ok()
-                .header("Set-Cookie", cookie.toString())
-                .body(new LoginResponse(sessionData.username()));
+
+            userAccount = getUserAccountIfExists(loginRequest.username());
+        }
+
+        if(userAccount.getUsername().equals(loginRequest.username()) &&
+                userAccount.getEncodedPassword().equals(loginRequest.password())) {
+            SessionData sessionData = new SessionData(loginRequest.username());
+
+            String sessionId = sessionManager.addSession(sessionData);
+            ResponseCookie cookie = ResponseCookie.from(SESSION_ID_COOKIE_NAME, sessionId)
+                    .secure(true)
+                    .httpOnly(true)
+                    .path("/")
+                    .maxAge(60 * 60 * 24)
+                    .build();
+
+            return ResponseEntity.ok()
+                    .header("Set-Cookie", cookie.toString())
+                    .body(new LoginResponse(sessionData.username()));
+        } else {
+            return ResponseEntity.badRequest().body(
+                    new LoginResponse("Invalid username or password")
+            );
+        }
     }
 
     @PostMapping(AUTH_LOGOUT_PATH)
@@ -55,5 +82,39 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header("Set-Cookie", cookie.toString())
                 .build();
+    }
+
+    /**
+     * Retourne un compte utilisateur s'il existe. Les exceptions seront gérées plus tard lors du TP 4.
+     * @param username nom d'utilisateur à chercher.
+     * @return le compte utilisateur s'il existe, null sinon.
+     */
+    private FirestoreUserAccount getUserAccountIfExists(String username) {
+        try {
+            return userAccountRepository.getUserAccount(username);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Crée un compte utilisateur. Les exceptions seront gérées plus tard lors du TP 4.
+     * @param username nom d'utilisateur à créer.
+     * @param password mot de passe à sauvegarder.
+     * @return true si le compte a été créé, false sinon.
+     */
+    private boolean createUserAccount(String username, String password) {
+        try {
+            userAccountRepository.createUserAccount(
+                    new FirestoreUserAccount(
+                            username,
+                            password
+                    )
+            );
+
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

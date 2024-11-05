@@ -21,8 +21,10 @@ public class UserAccountRepository {
 
     public void createUserAccount(FirestoreUserAccount userAccount) throws
             InterruptedException, ExecutionException {
+
         firestore.collection(COLLECTION_NAME)
                 .document(userAccount.getUsername())
+                .set(userAccount)
                 .get();
 
     }
