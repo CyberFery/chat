@@ -19,6 +19,8 @@ import com.inf5190.chat.auth.AuthController;
 import com.inf5190.chat.auth.filter.AuthFilter;
 import com.inf5190.chat.auth.session.SessionManager;
 import com.inf5190.chat.messages.MessageController;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * Application spring boot.
@@ -53,7 +55,6 @@ public class ChatApplication {
         }
     }
 
-
     /**
      * Fonction qui enregistre le filtre d'authorization.
      */
@@ -67,5 +68,10 @@ public class ChatApplication {
                 AuthController.AUTH_LOGOUT_PATH);
 
         return registrationBean;
+    }
+
+    @Bean
+    public PasswordEncoder getPasswordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
