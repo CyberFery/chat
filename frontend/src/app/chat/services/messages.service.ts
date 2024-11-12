@@ -1,6 +1,6 @@
 import { Injectable, Signal, signal } from '@angular/core';
 import { Message } from '../model/message.model';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -12,16 +12,16 @@ export class MessagesService {
   constructor(private http: HttpClient) {}
 
   fetchMessages(): void {
-    const messages = this.messages();
-    let fromId: number | undefined;
+    const currentMessages = this.messages();
+    let fromId: string | undefined;
 
-    if (messages.length > 0) {
-      fromId = messages[messages.length - 1].id;
+    if (currentMessages.length > 0) {
+      fromId = currentMessages[currentMessages.length - 1].id;
     }
 
     let params = new HttpParams();
     if (fromId !== undefined) {
-      params = params.set('fromId', fromId.toString());
+      params = params.set('fromId', fromId);
     }
 
     this.http
@@ -43,12 +43,29 @@ export class MessagesService {
       });
   }
 
-  postMessage(message: Omit<Message, 'id' | 'timestamp'>): void {
+  postMessage(
+    message: Omit<Message, 'id' | 'timestamp'>,
+    username: string,
+  ): void {
+    const token = 'YOUR_FIREBASE_TOKEN_HERE';
+
+    const headers = new HttpHeaders()
+      .set('Authorization', `Bearer ${token}`)
+      .set('username', username);
+
     this.http
       .post<Message>(`${environment.backendUrl}/messages`, message, {
+        headers,
         withCredentials: true,
       })
-      .subscribe();
+      .subscribe({
+        next: () => {
+          this.fetchMessages();
+        },
+        error: (error) => {
+          console.error('Error posting message:', error);
+        },
+      });
   }
 
   getMessages(): Signal<Message[]> {

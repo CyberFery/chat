@@ -27,7 +27,7 @@ export class ChatPageComponent implements OnDestroy {
     private messagesService: MessagesService,
     private authenticationService: AuthenticationService,
     private router: Router,
-    private webSocketService: WebSocketService
+    private webSocketService: WebSocketService,
   ) {}
 
   ngOnInit() {
@@ -48,14 +48,16 @@ export class ChatPageComponent implements OnDestroy {
       text: newMessageText,
       username: this.username()!,
     };
-    this.messagesService.postMessage(newMessage);
+    this.messagesService.postMessage(newMessage, this.username()!);
   }
 
   async onLogout() {
     const result = await this.authenticationService.logout();
-
-    if (result) this.router.navigate(['/login']);
-    else console.error('Logout failed');
+    if (result) {
+      this.router.navigate(['/login']);
+    } else {
+      console.error('Logout failed');
+    }
   }
 
   private connectWebSocket() {
