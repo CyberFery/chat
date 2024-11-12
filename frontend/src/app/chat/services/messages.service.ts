@@ -46,10 +46,17 @@ export class MessagesService {
   postMessage(message: NewMessageRequest): void {
     const headers = new HttpHeaders().set('username', message.username);
 
-    this.http.post<Message>(`${environment.backendUrl}/messages`, message, {
-      headers,
-      withCredentials: true,
-    });
+    this.http
+      .post<Message>(`${environment.backendUrl}/messages`, message, {
+        headers,
+        withCredentials: true,
+      })
+      .subscribe({
+        next: () => {},
+        error: (error) => {
+          console.error('Error posting message:', error);
+        },
+      });
   }
 
   getMessages(): Signal<Message[]> {
