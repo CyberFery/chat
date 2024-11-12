@@ -1,7 +1,5 @@
 import { Injectable, Signal, signal } from '@angular/core';
 import { Message, NewMessageRequest } from '../model/message.model';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Message } from '../model/message.model';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
@@ -59,7 +57,7 @@ export class MessagesService {
       })
       .subscribe({
         next: () => {
-          this.fetchMessages();
+          //this.fetchMessages();
         },
         error: (error) => {
           console.error('Error posting message:', error);

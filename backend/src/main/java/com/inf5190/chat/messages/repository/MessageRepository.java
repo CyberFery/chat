@@ -29,7 +29,7 @@ public class MessageRepository {
         MessageRepository.class.getName()
     );
 
-    public Message createMessage(Message message)
+    public Message createMessage(NewMessageRequest message)
         throws ExecutionException, InterruptedException {
         CollectionReference messagesCollection = firestore.collection(
             COLLECTION_NAME
@@ -38,9 +38,11 @@ public class MessageRepository {
         DocumentReference docRef = messagesCollection.document();
 
         FirestoreMessage firestoreMessage = new FirestoreMessage(
+            docRef.getId(),
             message.username(),
             Timestamp.now(),
-            message.text()
+            message.text(),
+            null // TODO: null at this moment
         );
 
         ApiFuture<WriteResult> future = docRef.set(firestoreMessage);
@@ -48,9 +50,10 @@ public class MessageRepository {
 
         return new Message(
             docRef.getId(),
+            message.text(),
             message.username(),
             firestoreMessage.getTimestamp().toDate().getTime(),
-            message.text()
+            null
         );
     }
 
@@ -84,14 +87,16 @@ public class MessageRepository {
         List<FirestoreMessage> firestoreMessages = querySnapshotFuture
             .get()
             .toObjects(FirestoreMessage.class);
+
         return firestoreMessages
             .stream()
             .map(fm ->
                 new Message(
-                    null,
+                    fm.getId(),
+                    fm.getText(),
                     fm.getUsername(),
                     fm.getTimestamp().toDate().getTime(),
-                    fm.getText()
+            null
                 )
             )
             .toList();

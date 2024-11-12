@@ -31,6 +31,7 @@ export class NewMessageFormComponent {
   constructor(private fb: FormBuilder) {}
 
   onPublishMessage() {
+    // TODO: validate if can send only picture
     if (this.messageForm.valid && this.messageForm.value.msg) {
       let newMessageRequest: NewMessageRequest = this.buildNewMessageRequest(
         this.messageForm.value.msg
@@ -46,7 +47,7 @@ export class NewMessageFormComponent {
     const newMessageRequest: NewMessageRequest = {
       text: msg,
       username: 'username',
-      imageData: null,
+      imageData: null, // TODO: null at this moment
     };
 
     if (this.hasImage) {
