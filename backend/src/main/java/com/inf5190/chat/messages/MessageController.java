@@ -5,11 +5,11 @@ import com.inf5190.chat.messages.model.NewMessageRequest;
 import com.inf5190.chat.messages.repository.MessageRepository;
 import com.inf5190.chat.websocket.WebSocketManager;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-/**
- * Contrôleur qui gère l'API de messages.
- */
 @CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 @RestController
 public class MessageController {
@@ -29,13 +29,23 @@ public class MessageController {
 
     @GetMapping(MESSAGES_PATH)
     public List<Message> getMessages(
-        @RequestParam(value = "fromId", required = false) Long fromId
-    ) {
+        @RequestParam(value = "fromId", required = false) String fromId
+    ) throws ExecutionException, InterruptedException {
         return messageRepository.getMessages(fromId);
     }
 
     @PostMapping(MESSAGES_PATH)
-    public Message createMessage(@RequestBody NewMessageRequest message) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public Message createMessage(
+        @RequestBody NewMessageRequest message,
+        @RequestHeader("username") String username
+    ) throws ExecutionException, InterruptedException {
+        if (!username.equals(message.username())) {
+            throw new ResponseStatusException(
+                HttpStatus.FORBIDDEN,
+                "Username mismatch"
+            );
+        }
         Message newMessage = messageRepository.createMessage(message);
         webSocketManager.notifySessions();
         return newMessage;

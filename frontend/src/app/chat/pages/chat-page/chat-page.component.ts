@@ -52,9 +52,11 @@ export class ChatPageComponent implements OnDestroy {
 
   async onLogout() {
     const result = await this.authenticationService.logout();
-
-    if (result) this.router.navigate(['/login']);
-    else console.error('Logout failed');
+    if (result) {
+      this.router.navigate(['/login']);
+    } else {
+      console.error('Logout failed');
+    }
   }
 
   private connectWebSocket() {
