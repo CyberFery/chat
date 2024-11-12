@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
+
+import com.inf5190.chat.messages.model.NewMessageRequest;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -29,14 +31,15 @@ public class MessageRepository {
         }
     }
 
-    public Message createMessage(Message message) {
+    public Message createMessage(NewMessageRequest message) {
         long id = idGenerator.incrementAndGet();
         long timestamp = System.currentTimeMillis();
         Message newMessage = new Message(
             id,
+            message.text(),
             message.username(),
             timestamp,
-            message.text()
+            null
         );
         messages.add(newMessage);
         return newMessage;

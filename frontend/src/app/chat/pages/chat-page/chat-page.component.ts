@@ -10,6 +10,7 @@ import { Subscription } from 'rxjs';
 import { MessagesComponent } from '../../composants/messages/messages.component';
 import { NewMessageFormComponent } from '../../composants/new-message-form/new-message-form.component';
 import { MatButtonModule } from '@angular/material/button';
+import { NewMessageRequest } from '../../model/message.model';
 
 @Component({
   selector: 'app-chat-page',
@@ -43,12 +44,10 @@ export class ChatPageComponent implements OnDestroy {
     this.disconnectWebSocket();
   }
 
-  publishMessage(newMessageText: string) {
-    const newMessage = {
-      text: newMessageText,
-      username: this.username()!,
-    };
-    this.messagesService.postMessage(newMessage);
+  publishMessage(newMessageRequest: NewMessageRequest) {
+    newMessageRequest.username = this.username()!;
+
+    this.messagesService.postMessage(newMessageRequest);
   }
 
   async onLogout() {

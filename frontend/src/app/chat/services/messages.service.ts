@@ -1,5 +1,5 @@
 import { Injectable, Signal, signal } from '@angular/core';
-import { Message } from '../model/message.model';
+import { Message, NewMessageRequest } from '../model/message.model';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
@@ -43,7 +43,7 @@ export class MessagesService {
       });
   }
 
-  postMessage(message: Omit<Message, 'id' | 'timestamp'>): void {
+  postMessage(message: NewMessageRequest): void {
     this.http
       .post<Message>(`${environment.backendUrl}/messages`, message, {
         withCredentials: true,

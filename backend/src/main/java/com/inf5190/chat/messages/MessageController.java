@@ -1,6 +1,7 @@
 package com.inf5190.chat.messages;
 
 import com.inf5190.chat.messages.model.Message;
+import com.inf5190.chat.messages.model.NewMessageRequest;
 import com.inf5190.chat.messages.repository.MessageRepository;
 import com.inf5190.chat.websocket.WebSocketManager;
 import java.util.List;
@@ -34,7 +35,7 @@ public class MessageController {
     }
 
     @PostMapping(MESSAGES_PATH)
-    public Message createMessage(@RequestBody Message message) {
+    public Message createMessage(@RequestBody NewMessageRequest message) {
         Message newMessage = messageRepository.createMessage(message);
         webSocketManager.notifySessions();
         return newMessage;
