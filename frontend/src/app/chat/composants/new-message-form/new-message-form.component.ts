@@ -5,6 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { ChatImageData, NewMessageRequest } from '../../model/message.model';
+import { FileReaderService } from '../../services/FileReaderService.service';
 
 @Component({
   selector: 'app-new-message-form',
@@ -28,40 +29,34 @@ export class NewMessageFormComponent {
 
   file: File | null = null;
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private fb: FormBuilder, private fileReader: FileReaderService) {}
 
   onPublishMessage() {
     // TODO: validate if can send only picture
     if (this.messageForm.valid && this.messageForm.value.msg) {
-      let newMessageRequest: NewMessageRequest = this.buildNewMessageRequest(
-        this.messageForm.value.msg
+      this.buildNewMessageRequest(this.messageForm.value.msg, this.file).then(
+        (newMessageRequest) => {
+          this.newMessage.emit(newMessageRequest);
+
+          this.messageForm.reset();
+        }
       );
-
-      this.newMessage.emit(newMessageRequest);
     }
-
-    this.messageForm.reset();
   }
 
-  private buildNewMessageRequest(msg: string): NewMessageRequest {
+  private async buildNewMessageRequest(
+    msg: string,
+    file: File | null
+  ): Promise<NewMessageRequest> {
     const newMessageRequest: NewMessageRequest = {
       text: msg,
       username: 'username',
-      imageData: null, // TODO: null at this moment
+      imageData: null,
     };
 
-    if (this.hasImage) {
-      const reader = new FileReader();
-      reader.readAsDataURL(this.file!);
-
-      reader.onload = () => {
-        const imageData: ChatImageData = {
-          data: reader.result as string,
-          type: this.file!.type,
-        };
-
-        newMessageRequest.imageData = imageData;
-      };
+    if (file != null) {
+      const imageData: ChatImageData = await this.fileReader.readFile(file);
+      newMessageRequest.imageData = imageData;
     }
 
     return newMessageRequest;

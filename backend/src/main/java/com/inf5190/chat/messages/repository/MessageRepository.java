@@ -9,7 +9,10 @@ import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.Query;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.google.cloud.firestore.WriteResult;
+import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.Storage;
 import com.google.firebase.cloud.FirestoreClient;
+import com.google.firebase.cloud.StorageClient;
 import com.inf5190.chat.messages.model.Message;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -18,12 +21,15 @@ import java.util.stream.Collectors;
 import com.inf5190.chat.messages.model.NewMessageRequest;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
+
+import io.jsonwebtoken.io.Decoders;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class MessageRepository {
 
     private static final String COLLECTION_NAME = "messages";
+    private static final String BUCKET_NAME = "inf5190-chat-5b338.firebasestorage.app";
     private final Firestore firestore = FirestoreClient.getFirestore();
     private static final Logger logger = Logger.getLogger(
         MessageRepository.class.getName()
@@ -36,13 +42,24 @@ public class MessageRepository {
         );
 
         DocumentReference docRef = messagesCollection.document();
+        String imageUrl = null;
+
+        if(message.imageData() != null){
+            Bucket b = StorageClient.getInstance().bucket(BUCKET_NAME);
+            String path = String.format("images/%s.%s", docRef.getId(),
+                    message.imageData().type());
+            b.create(path, Decoders.BASE64.decode(message.imageData().data()),
+                    Bucket.BlobTargetOption.predefinedAcl(Storage.PredefinedAcl.PUBLIC_READ));
+            imageUrl= String.format("https://storage.googleapis.com/%s/%s", BUCKET_NAME,
+                    path);
+        }
 
         FirestoreMessage firestoreMessage = new FirestoreMessage(
             docRef.getId(),
             message.username(),
             Timestamp.now(),
             message.text(),
-            null // TODO: null at this moment
+            imageUrl
         );
 
         ApiFuture<WriteResult> future = docRef.set(firestoreMessage);
@@ -53,7 +70,7 @@ public class MessageRepository {
             message.text(),
             message.username(),
             firestoreMessage.getTimestamp().toDate().getTime(),
-            null
+            imageUrl
         );
     }
 
@@ -96,7 +113,7 @@ public class MessageRepository {
                     fm.getText(),
                     fm.getUsername(),
                     fm.getTimestamp().toDate().getTime(),
-            null
+                    fm.getImageUrl()
                 )
             )
             .toList();

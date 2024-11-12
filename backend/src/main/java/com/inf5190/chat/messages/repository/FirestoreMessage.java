@@ -37,4 +37,7 @@ return text;
 public void setText(String text) {
 this.text = text;
 }
+public String getImageUrl() {
+return imageUrl;
+}
 }
