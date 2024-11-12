@@ -4,3 +4,11 @@
   text-align: left;
   padding: 30px;
 }
+
+img {
+  padding-left: 1%;
+  width: 150px;
+  height: auto;
+  border-radius: 3%;
+  border-left: 2px solid #f0f0f0;
+}

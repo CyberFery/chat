@@ -1,6 +1,7 @@
 package com.inf5190.chat.messages;
 
 import com.inf5190.chat.messages.model.Message;
+import com.inf5190.chat.messages.model.NewMessageRequest;
 import com.inf5190.chat.messages.repository.MessageRepository;
 import com.inf5190.chat.websocket.WebSocketManager;
 import java.util.List;
@@ -36,7 +37,7 @@ public class MessageController {
     @PostMapping(MESSAGES_PATH)
     @ResponseStatus(HttpStatus.CREATED)
     public Message createMessage(
-        @RequestBody Message message,
+        @RequestBody NewMessageRequest message,
         @RequestHeader("username") String username
     ) throws ExecutionException, InterruptedException {
         if (!username.equals(message.username())) {

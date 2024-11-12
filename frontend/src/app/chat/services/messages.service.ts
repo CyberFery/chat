@@ -1,5 +1,5 @@
 import { Injectable, Signal, signal } from '@angular/core';
-import { Message } from '../model/message.model';
+import { Message, NewMessageRequest } from '../model/message.model';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
@@ -43,29 +43,13 @@ export class MessagesService {
       });
   }
 
-  postMessage(
-    message: Omit<Message, 'id' | 'timestamp'>,
-    username: string,
-  ): void {
-    const token = 'TOKEN';
+  postMessage(message: NewMessageRequest): void {
+    const headers = new HttpHeaders().set('username', message.username);
 
-    const headers = new HttpHeaders()
-      .set('Authorization', `Bearer ${token}`)
-      .set('username', username);
-
-    this.http
-      .post<Message>(`${environment.backendUrl}/messages`, message, {
-        headers,
-        withCredentials: true,
-      })
-      .subscribe({
-        next: () => {
-          this.fetchMessages();
-        },
-        error: (error) => {
-          console.error('Error posting message:', error);
-        },
-      });
+    this.http.post<Message>(`${environment.backendUrl}/messages`, message, {
+      headers,
+      withCredentials: true,
+    });
   }
 
   getMessages(): Signal<Message[]> {
