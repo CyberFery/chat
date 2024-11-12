@@ -47,7 +47,7 @@ export class MessagesService {
     message: Omit<Message, 'id' | 'timestamp'>,
     username: string,
   ): void {
-    const token = 'YOUR_FIREBASE_TOKEN_HERE';
+    const token = 'TOKEN';
 
     const headers = new HttpHeaders()
       .set('Authorization', `Bearer ${token}`)
