@@ -1,23 +1,30 @@
-<form class="form" (ngSubmit)="onLogin()" [formGroup]="loginForm">
-    <mat-form-field appearance="fill">
-        <mat-label>Nom d'usager</mat-label>
-        <input
-            matInput
-            name="username"
-            type="text"
-            formControlName="username"
-        />
-    </mat-form-field>
+<form
+  class="form"
+  (ngSubmit)="onLogin(formDirective)"
+  [formGroup]="loginForm"
+  #formDirective="ngForm"
+>
+  <mat-form-field appearance="fill">
+    <mat-label>Nom d'usager</mat-label>
+    <input matInput name="username" type="text" formControlName="username" />
 
-    <mat-form-field appearance="fill">
-        <mat-label>Mot de passe</mat-label>
-        <input
-            matInput
-            name="password"
-            type="password"
-            formControlName="password"
-        />
-    </mat-form-field>
+    @if (hasControlError("username")){
+    <mat-error>Entrez un nom d'usager</mat-error>
+    }
+  </mat-form-field>
 
-    <button mat-flat-button type="submit">Connexion</button>
+  <mat-form-field appearance="fill">
+    <mat-label>Mot de passe</mat-label>
+    <input
+      matInput
+      name="password"
+      type="password"
+      formControlName="password"
+    />
+    @if(hasControlError("password")){
+    <mat-error>Entrez un mot de passe</mat-error>
+    }
+  </mat-form-field>
+
+  <button mat-flat-button type="submit">Connexion</button>
 </form>

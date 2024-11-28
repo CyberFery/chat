@@ -1,9 +1,16 @@
-import { Component, Output, EventEmitter } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { Component, Output, EventEmitter, ViewChild } from '@angular/core';
+import {
+  FormBuilder,
+  ReactiveFormsModule,
+  FormGroupDirective,
+  Validators,
+  FormGroup,
+} from '@angular/forms';
 import { UserCredentials } from '../../model/user-credentials';
 import { MatFormFieldModule } from '@angular/material/form-field'; // Import MatFormFieldModule
 import { MatInputModule } from '@angular/material/input'; // Import MatInputModule
 import { MatButtonModule } from '@angular/material/button'; // Import MatButtonModule
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-login-form',
@@ -15,23 +22,49 @@ import { MatButtonModule } from '@angular/material/button'; // Import MatButtonM
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    CommonModule,
   ],
 })
 export class LoginFormComponent {
-  loginForm = this.fb.group({
-    username: '',
-    password: '',
-  });
+  @ViewChild(FormGroupDirective)
+  formDirective: FormGroupDirective | null = null;
+
+  loginForm: FormGroup;
 
   @Output() login = new EventEmitter<UserCredentials>();
 
-  constructor(private fb: FormBuilder) {}
+  constructor(private fb: FormBuilder) {
+    this.loginForm = this.fb.group({
+      username: ['', Validators.required],
+      password: ['', Validators.required],
+    });
+  }
 
-  onLogin() {
+  onLogin(formDirective: FormGroupDirective) {
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      return;
+    }
+
+    this.loginForm.reset();
+    formDirective.resetForm();
+
     const credentials: UserCredentials = {
       username: this.loginForm.value.username ?? '',
       password: this.loginForm.value.password ?? '',
     };
     this.login.emit(credentials);
+  }
+
+  hasControlError(controlName: 'username' | 'password'): boolean {
+    return this.showError(controlName, 'required');
+  }
+
+  private showError(field: 'username' | 'password', error: string): boolean {
+    return (
+      this.loginForm.controls[field].hasError(error) &&
+      (this.loginForm.controls[field].dirty ||
+        this.loginForm.controls[field].touched)
+    );
   }
 }
