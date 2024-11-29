@@ -41,6 +41,8 @@ public class AuthController {
     @PostMapping(AUTH_LOGIN_PATH)
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest)
         throws InterruptedException, ExecutionException {
+        System.out.println(loginRequest.username());
+
         FirestoreUserAccount userAccount = userAccountRepository.getUserAccount(loginRequest.username());
 
         if(userAccount == null) {

@@ -44,10 +44,12 @@ export class ChatPageComponent implements OnDestroy {
     this.disconnectWebSocket();
   }
 
-  publishMessage(newMessageRequest: NewMessageRequest) {
+  async publishMessage(newMessageRequest: NewMessageRequest) {
     newMessageRequest.username = this.username()!;
 
-    this.messagesService.postMessage(newMessageRequest);
+    if ((await this.messagesService.postMessage(newMessageRequest)) === false) {
+      this.onLogout();
+    }
   }
 
   async onLogout() {
@@ -61,9 +63,11 @@ export class ChatPageComponent implements OnDestroy {
 
   private connectWebSocket() {
     this.wsSubscription = this.webSocketService.connect().subscribe({
-      next: (event: WebSocketEvent) => {
+      next: async (event: WebSocketEvent) => {
         if (event === 'notif') {
-          this.messagesService.fetchMessages();
+          if ((await this.messagesService.fetchMessages()) === false) {
+            this.onLogout();
+          }
         }
       },
       error: (err) => console.error('WebSocket error:', err),

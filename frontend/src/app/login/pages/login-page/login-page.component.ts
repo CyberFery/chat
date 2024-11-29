@@ -18,9 +18,22 @@ export class LoginPageComponent {
     private router: Router
   ) {}
 
-  async onLogin(credentials: UserCredentials) {
-    await this.authService.login(credentials);
+  protected invalidCredentials: boolean = false;
+  protected serverError: boolean = false;
 
-    this.router.navigate(['/chat']);
+  async onLogin(credentials: UserCredentials) {
+    const responseCode = await this.authService.login(credentials);
+
+    if (responseCode === 200) {
+      this.router.navigate(['/chat']);
+      this.invalidCredentials = false;
+      this.serverError = false;
+    } else if (responseCode === 403) {
+      this.invalidCredentials = true;
+      this.serverError = false;
+    } else {
+      this.invalidCredentials = false;
+      this.serverError = true;
+    }
   }
 }

@@ -1,7 +1,11 @@
 import { Injectable, Signal, signal } from '@angular/core';
 import { UserCredentials } from '../model/user-credentials';
 import { of, Observable, firstValueFrom } from 'rxjs';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpResponse,
+} from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { LoginResponse } from '../model/login-response';
 
@@ -21,19 +25,30 @@ export class AuthenticationService {
     this.username.set(localStorage.getItem(AuthenticationService.KEY));
   }
 
-  async login(userCredentials: UserCredentials): Promise<Observable<void>> {
-    let response: LoginResponse = await firstValueFrom(
-      this.httpClient.post<LoginResponse>(
-        `${environment.backendUrl}/auth/login`,
-        userCredentials,
-        { withCredentials: true }
-      )
-    );
+  async login(userCredentials: UserCredentials): Promise<number> {
+    try {
+      const response: HttpResponse<LoginResponse> = await firstValueFrom(
+        this.httpClient.post<LoginResponse>(
+          `${environment.backendUrl}/auth/login`,
+          userCredentials,
+          { observe: 'response', withCredentials: true }
+        )
+      );
 
-    localStorage.setItem(AuthenticationService.KEY, response.username);
-    this.username.set(response.username);
+      if (response.status === 200 && response.body) {
+        localStorage.setItem(AuthenticationService.KEY, response.body.username);
+        this.username.set(response.body.username);
+      }
 
-    return of();
+      return response.status;
+    } catch (error) {
+      // Si autre erreur du côté du serveur
+      if (error instanceof HttpErrorResponse) {
+        return error.status;
+      } else {
+        return 500;
+      }
+    }
   }
 
   async logout(): Promise<boolean> {
@@ -67,5 +82,9 @@ export class AuthenticationService {
 
   getUsername(): Signal<string | null> {
     return this.username;
+  }
+
+  isConnected(): boolean {
+    return localStorage.getItem(AuthenticationService.KEY) !== null;
   }
 }

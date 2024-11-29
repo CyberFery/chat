@@ -46,13 +46,11 @@ export class LoginFormComponent {
       return;
     }
 
-    this.loginForm.reset();
-    formDirective.resetForm();
-
     const credentials: UserCredentials = {
       username: this.loginForm.value.username ?? '',
       password: this.loginForm.value.password ?? '',
     };
+
     this.login.emit(credentials);
   }
 
