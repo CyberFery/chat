@@ -1,10 +1,7 @@
 import { Component, OnDestroy } from '@angular/core';
 import { AuthenticationService } from 'src/app/login/services/authentication.service';
 import { MessagesService } from '../../services/messages.service';
-import {
-  WebSocketService,
-  WebSocketEvent,
-} from '../../services/websocket.service';
+import { WebSocketService } from '../../services/websocket.service';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { MessagesComponent } from '../../composants/messages/messages.component';
@@ -62,17 +59,13 @@ export class ChatPageComponent implements OnDestroy {
   }
 
   private connectWebSocket() {
-    this.wsSubscription = this.webSocketService.connect().subscribe({
-      next: async (event: WebSocketEvent) => {
-        if (event === 'notif') {
-          if ((await this.messagesService.fetchMessages()) === false) {
-            this.onLogout();
-          }
-        }
-      },
-      error: (err) => console.error('WebSocket error:', err),
-      complete: () => console.log('WebSocket connection closed'),
-    });
+    this.webSocketService.connect(this.onNotification.bind(this));
+  }
+
+  private async onNotification() {
+    if ((await this.messagesService.fetchMessages()) === false) {
+      this.onLogout();
+    }
   }
 
   private disconnectWebSocket() {

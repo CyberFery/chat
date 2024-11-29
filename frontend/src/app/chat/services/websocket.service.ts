@@ -1,8 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
 import { environment } from '../../../environments/environment';
-
-export type WebSocketEvent = 'notif' | 'error' | 'closed';
 
 @Injectable({
   providedIn: 'root',
@@ -15,47 +12,51 @@ export class WebSocketService {
   private readonly reconnectIntervalMs = 2000; // 2 segundos
   private reconnecting = false;
 
-  constructor(private ngZone: NgZone) {}
+  constructor() {}
 
-  public connect(): Observable<WebSocketEvent> {
-    this.ws = new WebSocket(`${environment.wsUrl}/notifications`);
-    const events = new Subject<WebSocketEvent>();
-
+  public connect(onNotification: () => void): void {
     this.ws = new WebSocket(`${environment.wsUrl}/notifications`);
 
     this.ws.onopen = () => {
       this.reconnectAttempts = 0;
       this.reconnecting = false;
-      console.log('Conexión establecida');
-      //if (onReconnect) onReconnect();
+      console.log('Connection established');
     };
 
-    this.ws.onmessage = () => events.next('notif');
+    this.ws.onmessage = () => {
+      onNotification();
+    };
 
-    this.ws.onclose = () => {
-      events.next('closed');
+    this.ws.onclose = (ev: CloseEvent) => {
+      if (ev.reason === 'user') {
+        return;
+      }
+
       if (
         !this.reconnecting &&
         this.reconnectAttempts < this.maxReconnectAttempts
       ) {
-        //this.reconnect(onReconnect);
-      } else {
-        events.complete();
+        this.reconnect(onNotification);
       }
     };
 
     this.ws.onerror = () => {
-      events.next('error');
-      if (!this.reconnecting) {
-        //this.reconnect(onReconnect);
-      }
+      this.reconnect(onNotification);
     };
+  }
 
-    return events.asObservable();
+  private reconnect(onNotification: () => void) {
+    this.reconnecting = true;
+    this.reconnectAttempts++;
+    console.log('Reconnecting...');
+
+    setTimeout(() => {
+      this.connect(onNotification);
+    }, this.reconnectIntervalMs);
   }
 
   public disconnect() {
-    this.ws?.close();
+    this.ws?.close(1000, 'user');
     this.ws = null;
     this.reconnectAttempts = 0;
   }
