@@ -71,6 +71,7 @@ public class MessageController {
 
             Message newMessage = messageRepository.createMessage(message);
             webSocketManager.notifySessions();
+
             return newMessage;
         } catch (ExecutionException | InterruptedException e) {
             LOGGER.warn("Erreur dans Firestore.", e);
