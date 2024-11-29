@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MessagesComponent } from './messages.component';
 
 describe('MessagesComponent', () => {
@@ -8,7 +8,7 @@ describe('MessagesComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MessagesComponent],
+      imports: [MessagesComponent, NoopAnimationsModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MessagesComponent);

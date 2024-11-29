@@ -1,15 +1,18 @@
 <div #chatContainer class="messages">
-  @for( m of messages(); track $index; let i = $index) {
-  <div>
-    @if(showDateHeader(messages(), i)) {
-    <h3>
-      {{ m.timestamp | date }}
-    </h3>
+    @for (m of messages(); track $index; let i = $index) {
+        <div>
+            @if (showDateHeader(messages(), i)) {
+                <h3>
+                    {{ m.timestamp | date }}
+                </h3>
+            }
+            <p>
+                [{{ m.timestamp | date: 'hh:mm' }}] {{ m.username }} :
+                {{ m.text }}
+            </p>
+            @if (m.imageUrl != null) {
+                <img src="{{ m.imageUrl }}" alt="Image" />
+            }
+        </div>
     }
-    <p>[{{ m.timestamp | date : 'hh:mm' }}] {{ m.username }} : {{ m.text }}</p>
-    @if(m.imageUrl != null) {
-    <img src="{{ m.imageUrl }}" alt="Image" />
-    }
-  </div>
-  }
 </div>

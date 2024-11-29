@@ -1,4 +1,10 @@
-<form class="form" (ngSubmit)="onLogin()" [formGroup]="loginForm">
+<!-- login-form.component.html -->
+<form
+    class="form"
+    (ngSubmit)="onLogin(formDirective)"
+    [formGroup]="loginForm"
+    #formDirective="ngForm"
+>
     <mat-form-field appearance="fill">
         <mat-label>Nom d'usager</mat-label>
         <input
@@ -6,7 +12,15 @@
             name="username"
             type="text"
             formControlName="username"
+            data-testid="username-input"
         />
+
+        <mat-error
+            *ngIf="hasControlError('username')"
+            data-testid="username-error"
+        >
+            Entrez un nom d'usager
+        </mat-error>
     </mat-form-field>
 
     <mat-form-field appearance="fill">
@@ -16,8 +30,22 @@
             name="password"
             type="password"
             formControlName="password"
+            data-testid="password-input"
         />
+        <mat-error
+            *ngIf="hasControlError('password')"
+            data-testid="password-error"
+        >
+            Entrez un mot de passe
+        </mat-error>
     </mat-form-field>
 
-    <button mat-flat-button type="submit">Connexion</button>
+    <button
+        mat-flat-button
+        type="submit"
+        data-testid="login-button"
+        [disabled]="loginForm.invalid"
+    >
+        Connexion
+    </button>
 </form>
