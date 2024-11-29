@@ -184,11 +184,12 @@ public class TestAuthController {
         when(
             this.mockAccountRepository.getUserAccount(loginRequest.username())
         ).thenThrow(
-            new ExecutionException("Firestore exception", new Exception())
+            new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Firestore exception")
         );
 
-        ExecutionException exception = assertThrows(
-            ExecutionException.class,
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
             () -> {
                 this.authController.login(loginRequest);
             }

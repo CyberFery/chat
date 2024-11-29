@@ -142,6 +142,8 @@ describe('LoginFormComponent', () => {
     // Vérifier que le formulaire est invalide.
     expect(component.loginForm.valid).toBeFalse();
 
+    fixture.detectChanges();
+
     // Vérifier que le message d'erreur pour le mot de passe est affiché.
     const passwordError = testHelper.getElement('password-error');
     expect(passwordError).toBeTruthy();

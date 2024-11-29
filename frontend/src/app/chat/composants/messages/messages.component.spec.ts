@@ -1,9 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MessagesComponent } from './messages.component';
+import { ComponentRef } from '@angular/core';
 
 describe('MessagesComponent', () => {
   let component: MessagesComponent;
+  let componentRef: ComponentRef<MessagesComponent>;
   let fixture: ComponentFixture<MessagesComponent>;
 
   beforeEach(async () => {
@@ -13,6 +15,10 @@ describe('MessagesComponent', () => {
 
     fixture = TestBed.createComponent(MessagesComponent);
     component = fixture.componentInstance;
+
+    componentRef = fixture.componentRef;
+    componentRef.setInput('messages', []);
+
     fixture.detectChanges();
   });
 

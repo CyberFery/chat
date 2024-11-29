@@ -20,7 +20,7 @@ public class MessageRepository {
 
     private static final String COLLECTION_NAME = "messages";
     private static final String BUCKET_NAME =
-        "norse-fragment-432120-c8.firebasestorage.app";
+        "inf5190-chat-5b338.firebasestorage.app";
     private static final Logger logger = Logger.getLogger(
         MessageRepository.class.getName()
     );

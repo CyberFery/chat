@@ -85,7 +85,7 @@ public class AuthController {
         } catch(InterruptedException | ExecutionException e) {
             LOGGER.warn("Erreur dans Firestore.", e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Unexpected error on login.");
+                    "Firestore exception");
         } catch (Exception e) {
             LOGGER.warn("Erreur inattendue.", e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
