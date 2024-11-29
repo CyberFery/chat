@@ -6,10 +6,16 @@
 >
   <mat-form-field appearance="fill">
     <mat-label>Nom d'usager</mat-label>
-    <input matInput name="username" type="text" formControlName="username" />
+    <input
+      matInput
+      name="username"
+      type="text"
+      formControlName="username"
+      data-testid="username-input"
+    />
 
     @if (hasControlError("username")){
-    <mat-error>Entrez un nom d'usager</mat-error>
+    <mat-error data-testid="username-error">Entrez un nom d'usager</mat-error>
     }
   </mat-form-field>
 
@@ -20,11 +26,22 @@
       name="password"
       type="password"
       formControlName="password"
+      data-testid="password-input"
     />
+
     @if(hasControlError("password")){
-    <mat-error>Entrez un mot de passe</mat-error>
+    <mat-error *ngIf="hasControlError('password')" data-testid="password-error">
+      Entrez un mot de passe
+    </mat-error>
     }
   </mat-form-field>
 
-  <button mat-flat-button type="submit">Connexion</button>
+  <button
+    mat-flat-button
+    type="submit"
+    data-testid="login-button"
+    [disabled]="loginForm.invalid"
+  >
+    Connexion
+  </button>
 </form>
