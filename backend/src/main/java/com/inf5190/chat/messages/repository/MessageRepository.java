@@ -95,16 +95,17 @@ public class MessageRepository {
             DocumentReference docRef = messagesCollection.document(fromId);
             DocumentSnapshot snapshot = docRef.get().get();
 
-            if (snapshot.contains("timestamp")) {
+            if (snapshot.exists() && snapshot.contains("timestamp")) {
                 query = messagesCollection
                     .orderBy("timestamp")
                     .startAfter(snapshot)
                     .limitToLast(20);
             } else {
                 logger.warning(
-                    "DocumentSnapshot sans timestamp pour l'ID: " + fromId
+                    "DocumentSnapshot introuvable ou sans timestamp pour l'ID: " +
+                    fromId
                 );
-                query = messagesCollection.orderBy("timestamp").limitToLast(20);
+                throw new IllegalArgumentException("Message not found");
             }
         } else {
             query = messagesCollection.orderBy("timestamp").limitToLast(20);

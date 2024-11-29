@@ -31,7 +31,14 @@ public class MessageController {
     public List<Message> getMessages(
         @RequestParam(value = "fromId", required = false) String fromId
     ) throws ExecutionException, InterruptedException {
-        return messageRepository.getMessages(fromId);
+        try {
+            return messageRepository.getMessages(fromId);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Message not found"
+            );
+        }
     }
 
     @PostMapping(MESSAGES_PATH)
