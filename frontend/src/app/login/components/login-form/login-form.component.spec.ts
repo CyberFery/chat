@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations'; // Added import
 
 import { LoginFormComponent } from './login-form.component';
 
@@ -9,7 +10,11 @@ describe('LoginFormComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ReactiveFormsModule, LoginFormComponent],
+      imports: [
+        ReactiveFormsModule,
+        NoopAnimationsModule, // Added NoopAnimationsModule
+        LoginFormComponent,
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoginFormComponent);
