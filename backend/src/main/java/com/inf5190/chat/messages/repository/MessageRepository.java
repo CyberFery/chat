@@ -2,38 +2,37 @@ package com.inf5190.chat.messages.repository;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.Timestamp;
-import com.google.cloud.firestore.CollectionReference;
-import com.google.cloud.firestore.DocumentReference;
-import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.Query;
-import com.google.cloud.firestore.QuerySnapshot;
-import com.google.cloud.firestore.WriteResult;
+import com.google.cloud.firestore.*;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
-import com.google.firebase.cloud.FirestoreClient;
 import com.google.firebase.cloud.StorageClient;
 import com.inf5190.chat.messages.model.Message;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
-
 import com.inf5190.chat.messages.model.NewMessageRequest;
+import io.jsonwebtoken.io.Decoders;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
-
-import io.jsonwebtoken.io.Decoders;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class MessageRepository {
 
     private static final String COLLECTION_NAME = "messages";
-    private static final String BUCKET_NAME = "inf5190-chat-5b338.firebasestorage.app";
-    private final Firestore firestore = FirestoreClient.getFirestore();
+    private static final String BUCKET_NAME =
+        "norse-fragment-432120-c8.firebasestorage.app";
     private static final Logger logger = Logger.getLogger(
         MessageRepository.class.getName()
     );
+
+    private final Firestore firestore;
+    private final StorageClient storageClient;
+
+    @Autowired
+    public MessageRepository(Firestore firestore, StorageClient storageClient) {
+        this.firestore = firestore;
+        this.storageClient = storageClient;
+    }
 
     public Message createMessage(NewMessageRequest message)
         throws ExecutionException, InterruptedException {
@@ -44,14 +43,25 @@ public class MessageRepository {
         DocumentReference docRef = messagesCollection.document();
         String imageUrl = null;
 
-        if(message.imageData() != null){
-            Bucket b = StorageClient.getInstance().bucket(BUCKET_NAME);
-            String path = String.format("images/%s.%s", docRef.getId(),
-                    message.imageData().type());
-            b.create(path, Decoders.BASE64.decode(message.imageData().data()),
-                    Bucket.BlobTargetOption.predefinedAcl(Storage.PredefinedAcl.PUBLIC_READ));
-            imageUrl= String.format("https://storage.googleapis.com/%s/%s", BUCKET_NAME,
-                    path);
+        if (message.imageData() != null) {
+            Bucket bucket = storageClient.bucket(BUCKET_NAME);
+            String path = String.format(
+                "images/%s.%s",
+                docRef.getId(),
+                message.imageData().type()
+            );
+            bucket.create(
+                path,
+                Decoders.BASE64.decode(message.imageData().data()),
+                Bucket.BlobTargetOption.predefinedAcl(
+                    Storage.PredefinedAcl.PUBLIC_READ
+                )
+            );
+            imageUrl = String.format(
+                "https://storage.googleapis.com/%s/%s",
+                BUCKET_NAME,
+                path
+            );
         }
 
         FirestoreMessage firestoreMessage = new FirestoreMessage(
@@ -85,16 +95,17 @@ public class MessageRepository {
             DocumentReference docRef = messagesCollection.document(fromId);
             DocumentSnapshot snapshot = docRef.get().get();
 
-            if (snapshot.contains("timestamp")) {
+            if (snapshot.exists() && snapshot.contains("timestamp")) {
                 query = messagesCollection
                     .orderBy("timestamp")
                     .startAfter(snapshot)
                     .limitToLast(20);
             } else {
                 logger.warning(
-                    "DocumentSnapshot sans timestamp pour l'ID: " + fromId
+                    "DocumentSnapshot introuvable ou sans timestamp pour l'ID: " +
+                    fromId
                 );
-                query = messagesCollection.orderBy("timestamp").limitToLast(20);
+                throw new IllegalArgumentException("Message not found");
             }
         } else {
             query = messagesCollection.orderBy("timestamp").limitToLast(20);

@@ -44,14 +44,15 @@ public class MessageController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Unexpected error on get message.");
         } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Message not found"
+            );
         } catch (Exception e) {
             LOGGER.warn("Erreur inattendue.", e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "Unexpected error on get message.");
         }
-
-
     }
 
     @PostMapping(MESSAGES_PATH)
