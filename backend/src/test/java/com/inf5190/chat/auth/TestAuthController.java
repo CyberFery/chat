@@ -62,17 +62,16 @@ public class TestAuthController {
         final SessionData expectedSessionData = new SessionData(this.username);
         final String expectedUsername = this.username;
 
-        // Simulate that the user account does not exist initially
         when(this.mockAccountRepository.getUserAccount(loginRequest.username()))
-            .thenReturn(null) // First call returns null
-            .thenReturn(userAccount); // Second call returns the new user account
+            .thenReturn(null) 
+            .thenReturn(userAccount); 
 
-        // Simulate encoding the password
+        
         when(
             this.mockPasswordEncoder.encode(loginRequest.password())
         ).thenReturn(this.hashedPassword);
 
-        // Simulate password matching
+        
         when(
             this.mockPasswordEncoder.matches(
                     loginRequest.password(),
@@ -80,20 +79,20 @@ public class TestAuthController {
                 )
         ).thenReturn(true);
 
-        // Simulate session creation
+        
         when(
             this.mockSessionManager.addSession(expectedSessionData)
         ).thenReturn(expectedUsername);
 
-        // Perform the login operation
+        
         ResponseEntity<LoginResponse> response =
             this.authController.login(loginRequest);
 
-        // Assertions
+        
         assertThat(response.getStatusCode().value()).isEqualTo(200);
         assertThat(response.getBody().username()).isEqualTo(expectedUsername);
 
-        // Verify interactions
+        
         verify(this.mockAccountRepository, times(2)).getUserAccount(
             this.username
         );
