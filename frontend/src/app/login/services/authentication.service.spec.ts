@@ -167,5 +167,4 @@ describe('AuthenticationService', () => {
     });
   });
 
-  // Suppression du describe 'getUsername' en raison des erreurs rencontrées
 });
