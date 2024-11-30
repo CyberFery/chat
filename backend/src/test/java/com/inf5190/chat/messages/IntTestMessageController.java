@@ -79,7 +79,6 @@ public class IntTestMessageController {
         this.messagesEndpointUrl = "http://localhost:" + port + "/messages";
         this.loginEndpointUrl = "http://localhost:" + port + "/auth/login";
 
-        // Add two messages to Firestore at the beginning of each test
         this.firestore.collection("messages")
             .document("1")
             .create(this.message1)
@@ -92,7 +91,6 @@ public class IntTestMessageController {
 
     @AfterEach
     public void tearDown() {
-        // Clear the emulator content between each test
         this.restTemplate.delete(
                 "http://localhost:" +
                 this.emulatorPort +
@@ -158,7 +156,6 @@ public class IntTestMessageController {
     @Test
     public void getMessagesWithFromId()
         throws InterruptedException, ExecutionException {
-        // Add additional messages to Firestore
         FirestoreMessage message3 = new FirestoreMessage(
             "3",
             "u3",
@@ -186,7 +183,6 @@ public class IntTestMessageController {
                 );
 
         assertThat(response.getStatusCodeValue()).isEqualTo(200);
-        // Should return messages after message with id "1"
         assertThat(response.getBody())
             .hasSize(2)
             .extracting("id", "username", "text")
@@ -199,7 +195,6 @@ public class IntTestMessageController {
     @Test
     public void getMessagesMoreThanTwenty()
         throws InterruptedException, ExecutionException {
-        // Add 25 messages to Firestore
         for (int i = 3; i <= 27; i++) {
             FirestoreMessage message = new FirestoreMessage(
                 String.valueOf(i),
@@ -228,12 +223,11 @@ public class IntTestMessageController {
                 );
 
         assertThat(response.getStatusCodeValue()).isEqualTo(200);
-        // Should return the last 20 messages
         assertThat(response.getBody())
             .hasSize(20)
             .extracting("id")
-            .doesNotContain("1", "2") // Messages "1" and "2" should not be included
-            .contains("8", "9", "10", "27"); // Include some messages to ensure correctness
+            .doesNotContain("1", "2") 
+            .contains("8", "9", "10", "27"); 
     }
 
     @Test
