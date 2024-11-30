@@ -258,7 +258,7 @@ public class IntTestMessageController {
         assertThat(response.getStatusCodeValue()).isEqualTo(404);
     }
 
-    // Helper methods remain the same...
+
 
     /**
      * Logs in and returns the session cookie.
