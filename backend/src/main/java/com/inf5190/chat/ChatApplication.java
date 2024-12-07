@@ -10,9 +10,12 @@ import com.inf5190.chat.auth.AuthController;
 import com.inf5190.chat.auth.filter.AuthFilter;
 import com.inf5190.chat.auth.session.SessionManager;
 import com.inf5190.chat.messages.MessageController;
+
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Optional;
 import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +46,9 @@ public class ChatApplication {
     @Value("${firebase.project.id}")
     private String firebaseProjectId;
 
+    @Value("${firebase.storage.bucket.name}")
+    private String storageBucketNameProperty;
+
     public static void main(String[] args) {
         SpringApplication.run(ChatApplication.class, args);
     }
@@ -51,19 +57,22 @@ public class ChatApplication {
     public void initialiseFirebase() {
         try {
             if (FirebaseApp.getApps().size() == 0) {
-                FileInputStream serviceAccount = new FileInputStream(
-                    "firebase-key.json"
-                );
+                String projectId = Optional.ofNullable(System.getenv("GOOGLE_CLOUD_PROJECT"))
+                        .orElse(this.firebaseProjectId);
 
-                FirebaseOptions options = FirebaseOptions.builder()
-                    .setProjectId(this.firebaseProjectId)
-                    .setCredentials(
-                        GoogleCredentials.fromStream(serviceAccount)
-                    )
-                    .build();
+                final FirebaseOptions.Builder optionsBuilder = FirebaseOptions.builder()
+                    .setProjectId(this.firebaseProjectId);
+
+                File f = new File("firebase-key.json");
+                if (f.exists()) {
+                    FileInputStream serviceAccount = new FileInputStream("firebase-key.json");
+                    optionsBuilder.setCredentials(GoogleCredentials.fromStream(serviceAccount));
+                } else {
+                    optionsBuilder.setCredentials(GoogleCredentials.getApplicationDefault());
+                }
 
                 LOGGER.info("Initializing Firebase application.");
-                FirebaseApp.initializeApp(options);
+                FirebaseApp.initializeApp(optionsBuilder.build());
             } else {
                 LOGGER.info("Firebase application already initialized.");
             }
@@ -72,6 +81,18 @@ public class ChatApplication {
                 "**** Could not initialise application. Please check you service account key path. ****"
             );
         }
+    }
+
+    @Bean("allowedOrigins")
+    public String[] getAllowedOrigins() {
+        return Optional.ofNullable(System.getenv("ALLOWED_ORIGINS"))
+                .orElse(this.allowedOriginsConfig).split(",");
+    }
+
+    @Bean("storageBucketName")
+    public String getStorageBucketName() {
+        return Optional.ofNullable(System.getenv("STORAGE_BUCKET_NAME"))
+                .orElse(this.storageBucketNameProperty);
     }
 
     @Bean

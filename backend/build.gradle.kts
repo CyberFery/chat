@@ -2,6 +2,7 @@ plugins {
 	java
 	id("org.springframework.boot") version "3.3.3"
 	id("io.spring.dependency-management") version "1.1.6"
+	id("com.google.cloud.tools.jib") version "3.4.4"
 }
 
 group = "com.inf5190"
@@ -13,8 +14,20 @@ java {
 	}
 }
 
+
 repositories {
 	mavenCentral()
+}
+
+jib {
+	to {
+		image = "northamerica-northeast1-docker.pkg.dev/inf-5190-chat-prod-f40c2/inf-5190/chat-app"
+		auth {
+			username = "_json_key"
+			password =
+				file("firebase-production-key.json").readText(Charsets.UTF_8)
+		}
+	}
 }
 
 dependencies {

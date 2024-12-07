@@ -37,3 +37,4 @@ build/
 
 ### Firebase ###
 firebase-key.json
+firebase-production-key.json

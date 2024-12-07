@@ -13,14 +13,20 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class MessageRepository {
 
     private static final String COLLECTION_NAME = "messages";
-    private static final String BUCKET_NAME =
-        "inf5190-chat-5b338.firebasestorage.app";
+
+
+    @Autowired
+    @Qualifier("storageBucketName")
+    private String storageBucketName;
+
+
     private static final Logger logger = Logger.getLogger(
         MessageRepository.class.getName()
     );
@@ -44,7 +50,7 @@ public class MessageRepository {
         String imageUrl = null;
 
         if (message.imageData() != null) {
-            Bucket bucket = storageClient.bucket(BUCKET_NAME);
+            Bucket bucket = storageClient.bucket(storageBucketName);
             String path = String.format(
                 "images/%s.%s",
                 docRef.getId(),
@@ -59,7 +65,7 @@ public class MessageRepository {
             );
             imageUrl = String.format(
                 "https://storage.googleapis.com/%s/%s",
-                BUCKET_NAME,
+                storageBucketName,
                 path
             );
         }
