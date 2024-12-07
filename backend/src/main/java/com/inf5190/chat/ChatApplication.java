@@ -72,8 +72,6 @@ public class ChatApplication {
                 }
 
                 LOGGER.info("Initializing Firebase application.");
-                LOGGER.info("Firebase project ID: " + projectId);
-                LOGGER.info("Project ID, this.firebaseProjectId: " + this.firebaseProjectId);
 
                 FirebaseApp.initializeApp(optionsBuilder.build());
             } else {
