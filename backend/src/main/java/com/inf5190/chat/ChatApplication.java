@@ -63,15 +63,18 @@ public class ChatApplication {
                 final FirebaseOptions.Builder optionsBuilder = FirebaseOptions.builder()
                     .setProjectId(this.firebaseProjectId);
 
-                File f = new File("firebase-key.json");
+                File f = new File("firebase-production-key.json");
                 if (f.exists()) {
-                    FileInputStream serviceAccount = new FileInputStream("firebase-key.json");
+                    FileInputStream serviceAccount = new FileInputStream("firebase-production-key.json");
                     optionsBuilder.setCredentials(GoogleCredentials.fromStream(serviceAccount));
                 } else {
                     optionsBuilder.setCredentials(GoogleCredentials.getApplicationDefault());
                 }
 
                 LOGGER.info("Initializing Firebase application.");
+                LOGGER.info("Firebase project ID: " + projectId);
+                LOGGER.info("Project ID, this.firebaseProjectId: " + this.firebaseProjectId);
+
                 FirebaseApp.initializeApp(optionsBuilder.build());
             } else {
                 LOGGER.info("Firebase application already initialized.");
